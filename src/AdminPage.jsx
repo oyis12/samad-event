@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useApp } from "./context/AppContext";
 // import flyerKSP from './assets/Flyer_for_outreach_program_in_Kogi_State_Polytechnic_Lokoja.jpg'
 // import outreachFPI from './assets/Igala_Wikidedia_Outreach_in_Fpi.jpg'
 // import outreachKSP1 from './assets/Igala_Wikipedia_outreach_at_Kogi_State_Polytechnic_01.jpg'
@@ -22,7 +23,7 @@ import { useState, useEffect } from 'react'
 //   trainingKSP,
 // }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 // imageMap kept for backward compatibility when displaying older events that have imageKey
 function AdminPage({ onLogout }) {
@@ -35,7 +36,7 @@ function AdminPage({ onLogout }) {
       window.location.href = '/admin/login'
     }
   }
-
+    const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
   const [activeTab, setActiveTab] = useState('dashboard')
   // Events are fully managed via the backend API
   const [events, setEvents] = useState([])
@@ -75,9 +76,9 @@ function AdminPage({ onLogout }) {
     ;(async () => {
       try {
         const [eventsRes, projectsRes, statsRes] = await Promise.all([
-          fetch(`${API_BASE}/events`),
-          fetch(`${API_BASE}/projects`),
-          fetch(`${API_BASE}/stats`),
+          fetch(`${BASE_URL}/event`),
+          fetch(`${BASE_URL}/project`),
+          fetch(`${BASE_URL}/stats`),
         ])
 
         if (eventsRes.ok) {
@@ -104,7 +105,7 @@ function AdminPage({ onLogout }) {
     let updated
     if (editingEvent) {
       try {
-        const res = await fetch(`${API_BASE}/events/${editingEvent.id}`, {
+        const res = await fetch(`${BASE_URL}/event/${editingEvent.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventForm),
@@ -119,7 +120,7 @@ function AdminPage({ onLogout }) {
       }
     } else {
       try {
-        const res = await fetch(`${API_BASE}/events`, {
+        const res = await fetch(`${BASE_URL}/event`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(eventForm),
@@ -139,7 +140,7 @@ function AdminPage({ onLogout }) {
 
   const handleDeleteEvent = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/events/${id}`, { method: 'DELETE' })
+      const res = await fetch(`${BASE_URL}/event/${id}`, { method: 'DELETE' })
       if (res.status !== 204 && res.status !== 200) {
         throw new Error('Failed to delete event')
       }
@@ -171,7 +172,7 @@ function AdminPage({ onLogout }) {
     let updated
     if (editingProject) {
       try {
-        const res = await fetch(`${API_BASE}/projects/${editingProject.id}`, {
+        const res = await fetch(`${BASE_URL}/project/${editingProject.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectForm),
@@ -186,7 +187,7 @@ function AdminPage({ onLogout }) {
       }
     } else {
       try {
-        const res = await fetch(`${API_BASE}/projects`, {
+        const res = await fetch(`${BASE_URL}/project`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectForm),
@@ -212,7 +213,7 @@ function AdminPage({ onLogout }) {
 
   const handleDeleteProject = async (id) => {
     try {
-      const res = await fetch(`${API_BASE}/projects/${id}`, { method: 'DELETE' })
+      const res = await fetch(`${BASE_URL}/project/${id}`, { method: 'DELETE' })
       if (res.status !== 204 && res.status !== 200) throw new Error('Failed to delete project')
       const updated = projects.filter((p) => p.id !== id)
       setProjects(updated)

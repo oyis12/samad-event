@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { useApp } from "./context/AppContext";
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/f1f5f9/64748b?text=Event'
 
 function EventDetailPage() {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeIndex, setActiveIndex] = useState(0)
+
+  const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
+  
 
   useEffect(() => {
     ;(async () => {
@@ -17,7 +20,7 @@ function EventDetailPage() {
         const id = Number(idSegment)
         if (!id) throw new Error('Invalid event id')
 
-        const res = await fetch(`${API_BASE}/events/${id}`)
+        const res = await fetch(`${BASE_URL}/event/${id}`)
         if (!res.ok) {
           throw new Error('Failed to fetch event')
         }
