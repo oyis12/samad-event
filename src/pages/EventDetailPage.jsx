@@ -1,46 +1,46 @@
-import { useState, useEffect } from 'react'
-import { useApp } from "./context/AppContext";
+import { useState, useEffect } from "react";
+import { useApp } from "../context/AppContext";
 
-const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/f1f5f9/64748b?text=Event'
+const PLACEHOLDER_IMAGE =
+  "https://placehold.co/600x400/f1f5f9/64748b?text=Event";
 
 function EventDetailPage() {
-  const [event, setEvent] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
-  
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const path = window.location.pathname // e.g. /events/123
-        const segments = path.split('/').filter(Boolean) // ['events', '123']
-        const idSegment = segments[1]
-        const id = Number(idSegment)
-        if (!id) throw new Error('Invalid event id')
+        const path = window.location.pathname; // e.g. /events/123
+        const segments = path.split("/").filter(Boolean); // ['events', '123']
+        const idSegment = segments[1];
+        const id = Number(idSegment);
+        if (!id) throw new Error("Invalid event id");
 
-        const res = await fetch(`${BASE_URL}/event/${id}`)
+        const res = await fetch(`${BASE_URL}/event/${id}`);
         if (!res.ok) {
-          throw new Error('Failed to fetch event')
+          throw new Error("Failed to fetch event");
         }
-        const data = await res.json()
-        setEvent(data)
+        const data = await res.json();
+        setEvent(data);
       } catch (e) {
-        console.error('Failed to load event detail', e)
-        setEvent(null)
+        console.error("Failed to load event detail", e);
+        setEvent(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <div className="rounded-full border-4 border-slate-200 border-t-indigo-500 p-6 animate-spin" />
       </div>
-    )
+    );
   }
 
   if (!event) {
@@ -49,7 +49,11 @@ function EventDetailPage() {
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
           <div className="container-page flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src="/logo.jfif" alt="Igala Wikimedia logo" className="h-9 w-auto rounded-lg" />
+              <img
+                src="/logo.jfif"
+                alt="Igala Wikimedia logo"
+                className="h-9 w-auto rounded-lg"
+              />
               <span className="text-sm font-extrabold tracking-tight text-slate-900">
                 Igala Wikimedia
               </span>
@@ -68,8 +72,8 @@ function EventDetailPage() {
               Event not found
             </h1>
             <p className="mt-3 text-sm text-slate-600">
-              The event you are looking for could not be found. It may have been removed or the link
-              is incorrect.
+              The event you are looking for could not be found. It may have been
+              removed or the link is incorrect.
             </p>
             <a
               href="/events"
@@ -80,29 +84,37 @@ function EventDetailPage() {
           </div>
         </main>
       </div>
-    )
+    );
   }
 
-  const primaryImage = event.imageSrc || event.image || PLACEHOLDER_IMAGE
-  const rawGallery = Array.isArray(event.galleryImages) ? event.galleryImages : []
+  const primaryImage = event.imageSrc || event.image || PLACEHOLDER_IMAGE;
+  const rawGallery = Array.isArray(event.galleryImages)
+    ? event.galleryImages
+    : [];
   const galleryImages =
     rawGallery.filter(Boolean).length > 0
       ? rawGallery.filter(Boolean)
-      : [primaryImage]
-  const safeIndex = Math.min(activeIndex, galleryImages.length - 1)
-  const activeImage = galleryImages[safeIndex]
+      : [primaryImage];
+  const safeIndex = Math.min(activeIndex, galleryImages.length - 1);
+  const activeImage = galleryImages[safeIndex];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
         <div className="container-page flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.jfif" alt="Igala Wikimedia logo" className="h-9 w-auto rounded-lg" />
+            <img
+              src="/logo.jfif"
+              alt="Igala Wikimedia logo"
+              className="h-9 w-auto rounded-lg"
+            />
             <div className="flex flex-col">
               <span className="text-sm font-extrabold tracking-tight text-slate-900">
                 Igala Wikimedia
               </span>
-              <span className="text-[11px] font-medium text-slate-500">Event details</span>
+              <span className="text-[11px] font-medium text-slate-500">
+                Event details
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -152,7 +164,8 @@ function EventDetailPage() {
                     Event gallery
                   </p>
                   <span className="text-[11px] font-medium text-slate-500">
-                    {galleryImages.length} {galleryImages.length === 1 ? 'photo' : 'photos'}
+                    {galleryImages.length}{" "}
+                    {galleryImages.length === 1 ? "photo" : "photos"}
                   </span>
                 </div>
                 <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
@@ -163,8 +176,8 @@ function EventDetailPage() {
                       onClick={() => setActiveIndex(idx)}
                       className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border ${
                         idx === safeIndex
-                          ? 'border-indigo-500 ring-2 ring-indigo-500/40'
-                          : 'border-slate-200 hover:border-slate-400'
+                          ? "border-indigo-500 ring-2 ring-indigo-500/40"
+                          : "border-slate-200 hover:border-slate-400"
                       } bg-slate-100`}
                     >
                       <img
@@ -185,7 +198,7 @@ function EventDetailPage() {
                 </h2>
                 <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-base">
                   {event.description ||
-                    'Community event showcasing Igala culture and Wikimedia contributions.'}
+                    "Community event showcasing Igala culture and Wikimedia contributions."}
                 </p>
               </div>
             </article>
@@ -197,8 +210,9 @@ function EventDetailPage() {
                   About this event
                 </h2>
                 <p className="mt-2 text-xs leading-6 text-slate-600">
-                  This event is part of the Igala Wikimedia Community’s efforts to preserve and share
-                  Igala culture, language, and knowledge through Wikimedia projects.
+                  This event is part of the Igala Wikimedia Community’s efforts
+                  to preserve and share Igala culture, language, and knowledge
+                  through Wikimedia projects.
                 </p>
               </div>
               <div className="h-px bg-slate-200" />
@@ -208,16 +222,20 @@ function EventDetailPage() {
                   <span>#{event.id}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-semibold text-slate-700">Image source</span>
-                  <span>{event.imageSrc ? 'Uploaded image' : 'Library image'}</span>
+                  <span className="font-semibold text-slate-700">
+                    Image source
+                  </span>
+                  <span>
+                    {event.imageSrc ? "Uploaded image" : "Library image"}
+                  </span>
                 </div>
               </div>
               <div className="h-px bg-slate-200" />
               <div className="space-y-2 text-xs text-slate-600">
                 <p className="font-semibold text-slate-700">Tips</p>
                 <p>
-                  You can add more photos for this event later by extending the data model to include
-                  a gallery of images.
+                  You can add more photos for this event later by extending the
+                  data model to include a gallery of images.
                 </p>
               </div>
             </aside>
@@ -225,8 +243,7 @@ function EventDetailPage() {
         </section>
       </main>
     </div>
-  )
+  );
 }
 
-export default EventDetailPage
-
+export default EventDetailPage;

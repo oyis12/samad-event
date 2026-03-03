@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "antd";
-import { useApp } from "./context/AppContext";
+import { useApp } from "../context/AppContext";
 
 const PLACEHOLDER_IMAGE =
   "https://placehold.co/600x400/f1f5f9/64748b?text=Event";
@@ -130,11 +130,7 @@ function EventsPage() {
                       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
                         <span>Igala Wikimedia Community</span>
                         <a
-                          href={
-                            event.id
-                              ? `/events/${event.id}`
-                              : "/events"
-                          }
+                          href={event.id ? `/events/${event.id}` : "/events"}
                           className="rounded-lg bg-slate-900 px-4 py-2 text-[11px] font-semibold text-white transition hover:bg-slate-800"
                         >
                           View

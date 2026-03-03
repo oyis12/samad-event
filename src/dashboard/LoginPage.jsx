@@ -1,129 +1,137 @@
-import { useEffect, useState } from 'react'
-import { useApp } from './context/AppContext'
+import { useEffect, useState } from "react";
+import { useApp } from "../context/AppContext";
 
 // const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 function LoginPage({ onLogin }) {
-  const [mode, setMode] = useState('login') // 'login' | 'register' | 'changePassword'
-  const {BASE_URL} = useApp()
+  const [mode, setMode] = useState("login"); // 'login' | 'register' | 'changePassword'
+  const { BASE_URL } = useApp();
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    currentPassword: '',
-    newPassword: '',
-  })
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [hasAdmin, setHasAdmin] = useState(true)
+    username: "",
+    password: "",
+    confirmPassword: "",
+    currentPassword: "",
+    newPassword: "",
+  });
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [hasAdmin, setHasAdmin] = useState(true);
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const res = await fetch(`${BASE_URL}/register`)
+        const res = await fetch(`${BASE_URL}/register`);
         if (res.ok) {
-          const data = await res.json()
-          if (typeof data.hasAdmin === 'boolean') {
-            setHasAdmin(data.hasAdmin)
+          const data = await res.json();
+          if (typeof data.hasAdmin === "boolean") {
+            setHasAdmin(data.hasAdmin);
             if (!data.hasAdmin) {
-              setMode('register')
+              setMode("register");
             }
           }
         }
       } catch (e) {
-        console.error('Failed to check admin status', e)
+        console.error("Failed to check admin status", e);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
     try {
-      if (mode === 'login') {
+      if (mode === "login") {
         const res = await fetch(`${BASE_URL}/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: formData.username,
             password: formData.password,
           }),
-        })
-        const data = await res.json().catch(() => ({}))
+        });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'Login failed')
-          setIsLoading(false)
-          return
+          setError(data.error || "Login failed");
+          setIsLoading(false);
+          return;
         }
-        localStorage.setItem('isAuthenticated', 'true')
-        localStorage.setItem('username', data.username || formData.username)
-        localStorage.setItem('loginAt', String(Date.now()))
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("username", data.username || formData.username);
+        localStorage.setItem("loginAt", String(Date.now()));
         setTimeout(() => {
-          window.location.href = '/admin'
-        }, 100)
-      } else if (mode === 'register') {
-        if (!formData.username || !formData.password || !formData.confirmPassword) {
-          setError('Please fill in all fields')
-          setIsLoading(false)
-          return
+          window.location.href = "/admin";
+        }, 100);
+      } else if (mode === "register") {
+        if (
+          !formData.username ||
+          !formData.password ||
+          !formData.confirmPassword
+        ) {
+          setError("Please fill in all fields");
+          setIsLoading(false);
+          return;
         }
         if (formData.password !== formData.confirmPassword) {
-          setError('Passwords do not match')
-          setIsLoading(false)
-          return
+          setError("Passwords do not match");
+          setIsLoading(false);
+          return;
         }
         const res = await fetch(`${API_BASE}/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: formData.username,
             password: formData.password,
           }),
-        })
-        const data = await res.json().catch(() => ({}))
+        });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'Registration failed')
-          setIsLoading(false)
-          return
+          setError(data.error || "Registration failed");
+          setIsLoading(false);
+          return;
         }
-        setHasAdmin(true)
-        setMode('login')
-        setError('')
-        setIsLoading(false)
-      } else if (mode === 'changePassword') {
-        if (!formData.username || !formData.currentPassword || !formData.newPassword) {
-          setError('Please fill in all fields')
-          setIsLoading(false)
-          return
+        setHasAdmin(true);
+        setMode("login");
+        setError("");
+        setIsLoading(false);
+      } else if (mode === "changePassword") {
+        if (
+          !formData.username ||
+          !formData.currentPassword ||
+          !formData.newPassword
+        ) {
+          setError("Please fill in all fields");
+          setIsLoading(false);
+          return;
         }
         const res = await fetch(`${API_BASE}/auth/change-password`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             username: formData.username,
             currentPassword: formData.currentPassword,
             newPassword: formData.newPassword,
           }),
-        })
-        const data = await res.json().catch(() => ({}))
+        });
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'Password change failed')
-          setIsLoading(false)
-          return
+          setError(data.error || "Password change failed");
+          setIsLoading(false);
+          return;
         }
-        setMode('login')
-        setError('')
-        setIsLoading(false)
+        setMode("login");
+        setError("");
+        setIsLoading(false);
       }
     } catch (err) {
-      console.error('Auth request failed', err)
-      setError('Something went wrong. Please try again.')
-      setIsLoading(false)
+      console.error("Auth request failed", err);
+      setError("Something went wrong. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-4">
@@ -146,14 +154,15 @@ function LoginPage({ onLogin }) {
               />
             </div>
             <h1 className="text-3xl font-extrabold text-white">
-              {mode === 'login' && 'Admin Login'}
-              {mode === 'register' && 'Create Admin Account'}
-              {mode === 'changePassword' && 'Change Password'}
+              {mode === "login" && "Admin Login"}
+              {mode === "register" && "Create Admin Account"}
+              {mode === "changePassword" && "Change Password"}
             </h1>
             <p className="mt-2 text-sm text-white/70">
-              {mode === 'login' && 'Sign in to access the admin dashboard'}
-              {mode === 'register' && 'Create the first admin account for this site'}
-              {mode === 'changePassword' && 'Update your admin password'}
+              {mode === "login" && "Sign in to access the admin dashboard"}
+              {mode === "register" &&
+                "Create the first admin account for this site"}
+              {mode === "changePassword" && "Update your admin password"}
             </p>
           </div>
 
@@ -161,7 +170,10 @@ function LoginPage({ onLogin }) {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div>
-              <label htmlFor="username" className="mb-2 block text-sm font-semibold text-white">
+              <label
+                htmlFor="username"
+                className="mb-2 block text-sm font-semibold text-white"
+              >
                 Username
               </label>
               <div className="relative">
@@ -185,8 +197,8 @@ function LoginPage({ onLogin }) {
                   type="text"
                   value={formData.username}
                   onChange={(e) => {
-                    setFormData({ ...formData, username: e.target.value })
-                    setError('')
+                    setFormData({ ...formData, username: e.target.value });
+                    setError("");
                   }}
                   className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 pl-10 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                   placeholder="Enter your username"
@@ -197,9 +209,12 @@ function LoginPage({ onLogin }) {
             </div>
 
             {/* Password Fields */}
-            {mode === 'login' && (
+            {mode === "login" && (
               <div>
-                <label htmlFor="password" className="mb-2 block text-sm font-semibold text-white">
+                <label
+                  htmlFor="password"
+                  className="mb-2 block text-sm font-semibold text-white"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -220,11 +235,11 @@ function LoginPage({ onLogin }) {
                   </div>
                   <input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     value={formData.password}
                     onChange={(e) => {
-                      setFormData({ ...formData, password: e.target.value })
-                      setError('')
+                      setFormData({ ...formData, password: e.target.value });
+                      setError("");
                     }}
                     className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 pl-10 pr-10 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                     placeholder="Enter your password"
@@ -237,7 +252,12 @@ function LoginPage({ onLogin }) {
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/40 hover:text-white/60"
                   >
                     {showPassword ? (
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -246,7 +266,12 @@ function LoginPage({ onLogin }) {
                         />
                       </svg>
                     ) : (
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -266,10 +291,13 @@ function LoginPage({ onLogin }) {
               </div>
             )}
 
-            {mode === 'register' && (
+            {mode === "register" && (
               <>
                 <div>
-                  <label htmlFor="password" className="mb-2 block text-sm font-semibold text-white">
+                  <label
+                    htmlFor="password"
+                    className="mb-2 block text-sm font-semibold text-white"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -290,11 +318,11 @@ function LoginPage({ onLogin }) {
                     </div>
                     <input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={(e) => {
-                        setFormData({ ...formData, password: e.target.value })
-                        setError('')
+                        setFormData({ ...formData, password: e.target.value });
+                        setError("");
                       }}
                       className="w-full rounded-lg border borderWHITE/20 bg-white/10 px-4 py-3 pl-10 pr-10 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                       placeholder="Enter password"
@@ -313,11 +341,14 @@ function LoginPage({ onLogin }) {
                   <div className="relative">
                     <input
                       id="confirmPassword"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={formData.confirmPassword}
                       onChange={(e) => {
-                        setFormData({ ...formData, confirmPassword: e.target.value })
-                        setError('')
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        });
+                        setError("");
                       }}
                       className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                       placeholder="Confirm password"
@@ -329,7 +360,7 @@ function LoginPage({ onLogin }) {
               </>
             )}
 
-            {mode === 'changePassword' && (
+            {mode === "changePassword" && (
               <>
                 <div>
                   <label
@@ -341,11 +372,14 @@ function LoginPage({ onLogin }) {
                   <div className="relative">
                     <input
                       id="currentPassword"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={formData.currentPassword}
                       onChange={(e) => {
-                        setFormData({ ...formData, currentPassword: e.target.value })
-                        setError('')
+                        setFormData({
+                          ...formData,
+                          currentPassword: e.target.value,
+                        });
+                        setError("");
                       }}
                       className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                       placeholder="Enter current password"
@@ -364,11 +398,14 @@ function LoginPage({ onLogin }) {
                   <div className="relative">
                     <input
                       id="newPassword"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       value={formData.newPassword}
                       onChange={(e) => {
-                        setFormData({ ...formData, newPassword: e.target.value })
-                        setError('')
+                        setFormData({
+                          ...formData,
+                          newPassword: e.target.value,
+                        });
+                        setError("");
                       }}
                       className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-white/40 backdrop-blur-sm transition-all focus:border-white/40 focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-white/20"
                       placeholder="Enter new password"
@@ -384,7 +421,12 @@ function LoginPage({ onLogin }) {
             {error && (
               <div className="rounded-lg border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-200 backdrop-blur-sm">
                 <div className="flex items-center gap-2">
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -426,48 +468,48 @@ function LoginPage({ onLogin }) {
                   </svg>
                   Signing in...
                 </span>
-              ) : mode === 'login' ? (
-                'Sign In'
-              ) : mode === 'register' ? (
-                'Create Admin'
+              ) : mode === "login" ? (
+                "Sign In"
+              ) : mode === "register" ? (
+                "Create Admin"
               ) : (
-                'Change Password'
+                "Change Password"
               )}
             </button>
           </form>
 
           {/* Mode Switch Links */}
           <div className="mt-4 flex flex-col items-center gap-2 text-xs text-white/70">
-            {mode !== 'login' && (
+            {mode !== "login" && (
               <button
                 type="button"
                 onClick={() => {
-                  setMode('login')
-                  setError('')
+                  setMode("login");
+                  setError("");
                 }}
                 className="underline hover:text-white/90"
               >
                 Back to login
               </button>
             )}
-            {hasAdmin && mode === 'login' && (
+            {hasAdmin && mode === "login" && (
               <button
                 type="button"
                 onClick={() => {
-                  setMode('changePassword')
-                  setError('')
+                  setMode("changePassword");
+                  setError("");
                 }}
                 className="underline hover:text-white/90"
               >
                 Change password
               </button>
             )}
-            {!hasAdmin && mode !== 'register' && (
+            {!hasAdmin && mode !== "register" && (
               <button
                 type="button"
                 onClick={() => {
-                  setMode('register')
-                  setError('')
+                  setMode("register");
+                  setError("");
                 }}
                 className="underline hover:text-white/90"
               >
@@ -488,7 +530,7 @@ function LoginPage({ onLogin }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default LoginPage
+export default LoginPage;
