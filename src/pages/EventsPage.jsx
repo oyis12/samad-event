@@ -114,6 +114,7 @@ function EventsPage() {
                         alt={event.name}
                         className="h-full w-full object-cover transition duration-500 hover:scale-105"
                         loading="lazy"
+                        decoding="async"
                       />
                     </div>
 

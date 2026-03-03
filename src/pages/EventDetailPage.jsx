@@ -145,6 +145,7 @@ function EventDetailPage() {
                   alt={event.name}
                   className="h-full w-full object-contain bg-slate-900 sm:object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-black/0" />
                 <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
@@ -185,6 +186,7 @@ function EventDetailPage() {
                         alt={`${event.name} thumbnail ${idx + 1}`}
                         className="h-full w-full object-cover"
                         loading="lazy"
+                        decoding="async"
                       />
                     </button>
                   ))}

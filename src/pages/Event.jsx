@@ -17,13 +17,15 @@ const Event = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${BASE_URL}/event?page=${page}&length=${PAGE_SIZE}`
+        `${BASE_URL}/event?page=${page}&length=${PAGE_SIZE}`,
       );
 
       const data = response.data;
 
       setEvents(data.events || data); // supports both formats
-      setHasNext(data.totalPages ? page < data.totalPages : data.length === PAGE_SIZE);
+      setHasNext(
+        data.totalPages ? page < data.totalPages : data.length === PAGE_SIZE,
+      );
     } catch (error) {
       console.error("Error fetching events:", error);
     } finally {
@@ -74,6 +76,7 @@ const Event = () => {
                       src={event.imageSrc}
                       alt={event.name}
                       loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover transition-transform duration-500 hover:scale-110"
                     />
                   </div>

@@ -15,9 +15,7 @@ const defaultStats = {
 const defaultProjects = [];
 
 function HomePage() {
-  const [events, setEvents] = useState(defaultEvents);
   const [stats, setStats] = useState(defaultStats);
-  const [projects, setProjects] = useState(defaultProjects);
   const { BASE_URL } = useApp();
   const [loading, setLoading] = useState(false);
 
@@ -26,27 +24,16 @@ function HomePage() {
       setLoading(true);
 
       try {
-        const [eventsRes, statsRes, projectsRes] = await Promise.all([
-          fetch(`${BASE_URL}/event`),
+        const [statsRes] = await Promise.all([
           fetch(`${BASE_URL}/stats`),
           fetch(`${BASE_URL}/project`),
         ]);
-
-        if (eventsRes.ok) {
-          const eventsData = await eventsRes.json();
-          if (Array.isArray(eventsData)) setEvents(eventsData);
-        }
 
         if (statsRes.ok) {
           const statsData = await statsRes.json();
           if (statsData && typeof statsData === "object") {
             setStats({ ...defaultStats, ...statsData });
           }
-        }
-
-        if (projectsRes.ok) {
-          const projectsData = await projectsRes.json();
-          if (Array.isArray(projectsData)) setProjects(projectsData);
         }
       } catch (e) {
         console.error("Failed to load content from API", e);
@@ -119,6 +106,7 @@ function HomePage() {
               <Stat
                 label="Active Contributors"
                 value={stats.contributors}
+                loading={loading}
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -138,6 +126,7 @@ function HomePage() {
               <Stat
                 label="Wikipedia Articles"
                 value={stats.articles}
+                loading={loading}
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -157,6 +146,7 @@ function HomePage() {
               <Stat
                 label="Media Files"
                 value={stats.mediaFiles}
+                loading={loading}
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -176,6 +166,7 @@ function HomePage() {
               <Stat
                 label="Community Events"
                 value={stats.events}
+                loading={loading}
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -200,18 +191,35 @@ function HomePage() {
   );
 }
 
-function Stat({ label, value, icon }) {
+function Stat({ label, value, icon, loading }) {
   return (
     <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10">
       <div className="flex items-start gap-4">
         {icon && <div className="mt-0.5 shrink-0">{icon}</div>}
         <div className="flex-1">
-          <div className="text-2xl font-extrabold tracking-tight text-white">
-            {value}
-          </div>
-          <div className="mt-1.5 text-xs font-semibold text-white/70 leading-relaxed">
-            {label}
-          </div>
+          {loading ? (
+            <>
+              <Skeleton
+                active
+                title={{ width: 80 }}
+                paragraph={false}
+              />
+              <Skeleton
+                active
+                title={false}
+                paragraph={{ rows: 1, width: 120 }}
+              />
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-extrabold tracking-tight text-white">
+                {value}
+              </div>
+              <div className="mt-1.5 text-xs font-semibold text-white/70 leading-relaxed">
+                {label}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
