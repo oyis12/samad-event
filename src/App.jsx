@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
-import AdminPage from "./dashboard/AdminPage.jsx";
+import DashboardLayout from "./dashboard/DashboadLayout.jsx";
 import LoginPage from "./dashboard/LoginPage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import EventDetailPage from "./pages/EventDetailPage.jsx";
@@ -10,94 +10,89 @@ import Footer from "./components/Footer.jsx";
 import About from "./pages/About.jsx";
 import Project from "./pages/Project.jsx";
 import Cta from "./pages/Cta.jsx";
+import Dashboard from "./dashboard/Dashboard.jsx";
+import DashboardEvent from "./dashboard/DashboardEvent.jsx";
+import DashboardProject from "./dashboard/DashboardProject.jsx";
 
 function App() {
-  const [path, setPath] = useState(window.location.pathname);
-
-  useEffect(() => {
-    // Listen for path changes
-    const handlePopState = () => {
-      setPath(window.location.pathname);
-    };
-
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
   const SESSION_TIMEOUT_MINUTES = 30;
 
   const checkAuth = () => {
     const isAuthFlag = localStorage.getItem("isAuthenticated") === "true";
     if (!isAuthFlag) return false;
-    const loginAtRaw = localStorage.getItem("loginAt");
-    const loginAt = loginAtRaw ? Number(loginAtRaw) : 0;
-    if (!loginAt) return isAuthFlag;
+
+    const loginAt = Number(localStorage.getItem("loginAt"));
+    if (!loginAt) return false;
+
     const now = Date.now();
     const maxAgeMs = SESSION_TIMEOUT_MINUTES * 60 * 1000;
+
     if (now - loginAt > maxAgeMs) {
-      // Session expired
-      localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("username");
-      localStorage.removeItem("loginAt");
-      // Force redirect to login
-      window.location.href = "/admin/login";
+      localStorage.clear();
       return false;
     }
+
     return true;
   };
 
-  // Check authentication status directly from localStorage with timeout
   const isAuthenticated = checkAuth();
 
-  const handleLogin = () => {
-    // Authentication is already stored in localStorage by LoginPage
-    // Just redirect
-    window.location.href = "/admin";
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("username");
-    localStorage.removeItem("loginAt");
-    window.location.href = "/admin/login";
+    localStorage.clear();
   };
-
-  // Handle routing
-  if (path === "/admin/login" || path === "/admin/login/") {
-    // If already authenticated, redirect to admin
-    if (isAuthenticated) {
-      window.location.href = "/admin";
-      return null;
-    }
-    return <LoginPage onLogin={handleLogin} />;
-  }
-
-  if (path === "/admin" || path === "/admin/") {
-    if (!isAuthenticated) {
-      // Redirect to login if not authenticated
-      window.location.href = "/admin/login";
-      return null;
-    }
-    return <AdminPage onLogout={handleLogout} />;
-  }
-
-  if (path.startsWith("/events/") && path !== "/events/") {
-    return <EventDetailPage />;
-  }
-
-  if (path === "/events" || path === "/events/") {
-    return <EventsPage />;
-  }
 
   return (
     <>
-      <NavBar />
-      <HomePage />
-      <Event />
-      <About />
-      <Project />
-      <Cta />
-      <Footer />
+      <Routes>
+
+        {/* Public Pages */}
+        <Route
+          path="/"
+          element={
+            <>
+              <NavBar />
+              <HomePage />
+              <Event />
+              <About />
+              <Project />
+              <Cta />
+              <Footer />
+            </>
+          }
+        />
+
+        <Route path="/events" element={<EventsPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
+
+        {/* Login */}
+        <Route
+          path="/admin/login"
+          element={
+            isAuthenticated ? (
+              <Navigate to="/admin" />
+            ) : (
+              <LoginPage />
+            )
+          }
+        />
+
+        {/* Protected Dashboard */}
+        <Route
+          path="/admin"
+          element={
+            isAuthenticated ? (
+              <DashboardLayout onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/admin/login" />
+            )
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="event" element={<DashboardEvent />} />
+          <Route path="project" element={<DashboardProject />} />
+        </Route>
+
+      </Routes>
     </>
   );
 }

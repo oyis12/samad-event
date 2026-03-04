@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
+import axios from "axios";
 
 
 // imageMap kept for backward compatibility when displaying older events that have imageKey
@@ -13,6 +14,7 @@ function AdminPage({ onLogout }) {
       window.location.href = "/admin/login";
     }
   };
+
   const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
   const [activeTab, setActiveTab] = useState("dashboard");
   // Events are fully managed via the backend API
@@ -48,99 +50,76 @@ function AdminPage({ onLogout }) {
     color: "from-blue-500 to-cyan-500",
   });
 
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [loadingProjects, setLoadingProjects] = useState(false);
+  const [loadingStats, setLoadingStats] = useState(false);
+
   // Load content from backend (events, projects, stats) when the admin loads
-  useEffect(() => {
-    (async () => {
+ useEffect(() => {
+    const fetchData = async () => {
       try {
         const [eventsRes, projectsRes, statsRes] = await Promise.all([
-          fetch(`${BASE_URL}/event`),
-          fetch(`${BASE_URL}/project`),
-          fetch(`${BASE_URL}/stats`),
+          axios.get(`${BASE_URL}/event`),
+          axios.get(`${BASE_URL}/project`),
+          axios.get(`${BASE_URL}/stats`),
         ]);
-
-        if (eventsRes.ok) {
-          const eventsData = await eventsRes.json();
-          if (Array.isArray(eventsData)) setEvents(eventsData);
-        }
-
-        if (projectsRes.ok) {
-          const projectsData = await projectsRes.json();
-          if (Array.isArray(projectsData)) setProjects(projectsData);
-        }
-
-        if (statsRes.ok) {
-          const statsData = await statsRes.json();
-          if (statsData && typeof statsData === "object") setStats(statsData);
+        setEvents(Array.isArray(eventsRes.data) ? eventsRes.data : []);
+        setProjects(Array.isArray(projectsRes.data) ? projectsRes.data : []);
+        if (statsRes.data && typeof statsRes.data === "object") {
+          setStats(statsRes.data);
         }
       } catch (err) {
         console.error("Failed to fetch data from API", err);
       }
-    })();
-  }, []);
+    };
+    fetchData();
+  }, [BASE_URL]);
 
   const handleAddEvent = async () => {
-    let updated;
-    if (editingEvent) {
-      try {
-        const res = await fetch(`${BASE_URL}/event/${editingEvent._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(eventForm),
-        });
-        if (!res.ok) throw new Error("Failed to update event");
-        const saved = await res.json();
-        updated = events.map((e) => (e.id === editingEvent.id ? saved : e));
+    setLoadingEvents(true);
+    let updatedEvents;
+    try {
+      if (editingEvent) {
+        const res = await axios.put(
+          `${BASE_URL}/event/${editingEvent._id}`,
+          eventForm
+        );
+        updatedEvents = events.map((e) =>
+          e._id === editingEvent._id ? res.data : e
+        );
         setEditingEvent(null);
-      } catch (err) {
-        console.error("Failed to update event", err);
-        return;
+      } else {
+        const res = await axios.post(`${BASE_URL}/event`, eventForm);
+        updatedEvents = [...events, res.data];
       }
-    } else {
-      try {
-        const res = await fetch(`${BASE_URL}/event`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(eventForm),
-        });
-        if (!res.ok) throw new Error("Failed to create event");
-        const saved = await res.json();
-        updated = [...events, saved];
-      } catch (err) {
-        console.error("Failed to create event", err);
-        return;
-      }
+      setEvents(updatedEvents);
+      setEventForm({ name: "", description: "", imageSrc: "", galleryImages: [] });
+      setShowEventForm(false);
+    } catch (err) {
+      console.error("Event operation failed", err);
+      alert("Failed to save event");
+    } finally {
+      setLoadingEvents(false);
     }
-    setEvents(updated);
-    setEventForm({
-      name: "",
-      description: "",
-      imageSrc: "",
-      galleryImages: [],
-    });
-    setShowEventForm(false);
   };
 
   const handleDeleteEvent = async (_id) => {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this event? This action cannot be undone."
-  );
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this event? This action cannot be undone."
+    );
+    if (!confirmed) return;
 
-  if (!confirmed) return;
-
-  try {
-    const res = await fetch(`${BASE_URL}/event/${_id}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) throw new Error("Failed to delete event");
-
-    // 🔥 Use _id not id
-    setEvents((prev) => prev.filter((e) => e._id !== _id));
-  } catch (err) {
-    console.error("Failed to delete event", err);
-    alert("Failed to delete event");
-  }
-};
+    setLoadingEvents(true);
+    try {
+      await axios.delete(`${BASE_URL}/event/${_id}`);
+      setEvents(events.filter((e) => e._id !== _id));
+    } catch (err) {
+      console.error("Failed to delete event", err);
+      alert("Failed to delete event");
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
 
   const handleEditEvent = (event) => {
     setEditingEvent(event);
@@ -149,9 +128,8 @@ function AdminPage({ onLogout }) {
       description: event.description,
       imageSrc:
         event.imageSrc ||
-        (Array.isArray(event.galleryImages) && event.galleryImages.length > 0
-          ? event.galleryImages[0]
-          : ""),
+        (Array.isArray(event.galleryImages) && event.galleryImages[0]) ||
+        "",
       galleryImages:
         (Array.isArray(event.galleryImages) && event.galleryImages) ||
         (event.imageSrc ? [event.imageSrc] : []),
