@@ -1,29 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApp } from "../context/AppContext";
-// import flyerKSP from './assets/Flyer_for_outreach_program_in_Kogi_State_Polytechnic_Lokoja.jpg'
-// import outreachFPI from './assets/Igala_Wikidedia_Outreach_in_Fpi.jpg'
-// import outreachKSP1 from './assets/Igala_Wikipedia_outreach_at_Kogi_State_Polytechnic_01.jpg'
-// import outreachKSP2 from './assets/Igala_Wikipedia_Outreach_at_KSP_Lokoja_01.jpg'
-// import outreachKSP3 from './assets/Igala_Wikipedia_Outreach_at_KSP_Lokoja_02.jpg'
-// import participantsFPI from './assets/Participants_at_FPI_outreach.jpg'
-// import outreachFederalPoly from './assets/Wikipedia_Outreach_in_Federal_Polytech_Idah.jpg'
-// import trainingFPI from './assets/Wikipedia_Training_session_at_FPI.jpg'
-// import trainingKSP from './assets/Igala_Wikipedia_Outreach_at_KSP_Lokoja_01.jpg'
 
-// // Shared image map and keys so we can store simple values and show fallbacks
-// const imageMap = {
-//   flyerKSP,
-//   outreachFPI,
-//   outreachKSP1,
-//   outreachKSP2,
-//   outreachKSP3,
-//   participantsFPI,
-//   outreachFederalPoly,
-//   trainingFPI,
-//   trainingKSP,
-// }
-
-// const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 // imageMap kept for backward compatibility when displaying older events that have imageKey
 function AdminPage({ onLogout }) {
@@ -105,7 +82,7 @@ function AdminPage({ onLogout }) {
     let updated;
     if (editingEvent) {
       try {
-        const res = await fetch(`${BASE_URL}/event/${editingEvent.id}`, {
+        const res = await fetch(`${BASE_URL}/event/${editingEvent._id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(eventForm),
@@ -143,18 +120,27 @@ function AdminPage({ onLogout }) {
     setShowEventForm(false);
   };
 
-  const handleDeleteEvent = async (id) => {
-    try {
-      const res = await fetch(`${BASE_URL}/event/${id}`, { method: "DELETE" });
-      if (res.status !== 204 && res.status !== 200) {
-        throw new Error("Failed to delete event");
-      }
-      const updated = events.filter((e) => e.id !== id);
-      setEvents(updated);
-    } catch (err) {
-      console.error("Failed to delete event", err);
-    }
-  };
+  const handleDeleteEvent = async (_id) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this event? This action cannot be undone."
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const res = await fetch(`${BASE_URL}/event/${_id}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) throw new Error("Failed to delete event");
+
+    // 🔥 Use _id not id
+    setEvents((prev) => prev.filter((e) => e._id !== _id));
+  } catch (err) {
+    console.error("Failed to delete event", err);
+    alert("Failed to delete event");
+  }
+};
 
   const handleEditEvent = (event) => {
     setEditingEvent(event);
@@ -587,7 +573,7 @@ function AdminPage({ onLogout }) {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {events.map((event) => (
                   <div
-                    key={event.id}
+                    key={event._id}
                     className="rounded-2xl border border-slate-200 bg-white shadow-sm"
                   >
                     <div className="aspect-[16/10] overflow-hidden rounded-t-2xl">
@@ -616,7 +602,7 @@ function AdminPage({ onLogout }) {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteEvent(event.id)}
+                          onClick={() => handleDeleteEvent(event._id)}
                           className="flex-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition-all hover:bg-red-100"
                         >
                           Delete

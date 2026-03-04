@@ -11,29 +11,34 @@ function EventDetailPage() {
 
   const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const path = window.location.pathname; // e.g. /events/123
-        const segments = path.split("/").filter(Boolean); // ['events', '123']
-        const idSegment = segments[1];
-        const id = Number(idSegment);
-        if (!id) throw new Error("Invalid event id");
+ useEffect(() => {
+  const fetchEvent = async () => {
+    try {
+      // Get ID from URL
+      const path = window.location.pathname; // /events/123
+      const segments = path.split("/").filter(Boolean);
+      const id = segments[1]; // assuming URL is /events/:id
 
-        const res = await fetch(`${BASE_URL}/event/${id}`);
-        if (!res.ok) {
-          throw new Error("Failed to fetch event");
-        }
-        const data = await res.json();
-        setEvent(data);
-      } catch (e) {
-        console.error("Failed to load event detail", e);
-        setEvent(null);
-      } finally {
-        setLoading(false);
+      if (!id) throw new Error("Invalid event ID");
+
+      const res = await fetch(`${BASE_URL}/event/${id}`);
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch event");
       }
-    })();
-  }, []);
+
+      const data = await res.json();
+      setEvent(data?.data || data);
+    } catch (e) {
+      console.error("Failed to load event detail", e);
+      setEvent(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchEvent();
+}, [BASE_URL]);
 
   if (loading) {
     return (

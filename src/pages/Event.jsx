@@ -11,27 +11,32 @@ const Event = () => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
-  const [hasNext, setHasNext] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchEvents = useCallback(async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `${BASE_URL}/event?page=${page}&length=${PAGE_SIZE}`,
-      );
+  setLoading(true);
 
-      const data = response.data;
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/event?page=${page}&length=${PAGE_SIZE}`
+    );
 
-      setEvents(data.events || data); // supports both formats
-      setHasNext(
-        data.totalPages ? page < data.totalPages : data.length === PAGE_SIZE,
-      );
-    } catch (error) {
-      console.error("Error fetching events:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [BASE_URL, page]);
+    const payload = response.data?.data || response.data;
+
+    const eventsData = payload?.events || payload || [];
+    const total = payload?.totalPages || 1;
+
+    setEvents(eventsData);
+    setTotalPages(total);
+
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    setEvents([]);
+    setTotalPages(1);
+  } finally {
+    setLoading(false);
+  }
+}, [BASE_URL, page]);
 
   useEffect(() => {
     fetchEvents();
@@ -69,7 +74,7 @@ const Event = () => {
             : events.map((event) => (
                 <div
                   className="bg-white rounded-lg shadow-md overflow-hidden"
-                  key={event.id}
+                  key={event._id}
                 >
                   <div className="aspect-[16/10] overflow-hidden bg-slate-100 h-60">
                     <img
@@ -93,7 +98,7 @@ const Event = () => {
 
                     <div className="mt-4 flex items-center justify-between">
                       <a
-                        href={`/events/${event.id}`}
+                        href={`/events/${event._id}`}
                         className="rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition-all hover:bg-slate-800"
                       >
                         View
@@ -105,7 +110,7 @@ const Event = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && (hasNext || page > 1) && (
+        {!loading && totalPages > 1 && (
           <div className="mt-12 flex justify-center gap-4">
             <button
               disabled={page === 1}
@@ -115,7 +120,7 @@ const Event = () => {
               Back
             </button>
 
-            {hasNext && (
+            {page < totalPages && (
               <button
                 onClick={() => setPage((prev) => prev + 1)}
                 className="px-5 py-2 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700"

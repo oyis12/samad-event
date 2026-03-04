@@ -9,7 +9,7 @@ function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { BASE_URL } = useApp(); // ✅ FIXED (you forgot to call it)
+  const { BASE_URL } = useApp(); 
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -72,7 +72,7 @@ function EventsPage() {
             </p>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* ✅ Skeleton Loader */}
             {loading &&
               Array.from({ length: 4 }).map((_, index) => (
@@ -124,14 +124,13 @@ function EventsPage() {
                       </h2>
 
                       <p className="mt-2 flex-1 text-sm leading-6 text-slate-600">
-                        {event.description ||
-                          "Community event showcasing Igala culture and Wikimedia contributions."}
+                        {event.description?.substring(0, 150) || "Community event showcasing Igala culture and Wikimedia contributions."}...
                       </p>
 
                       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
                         <span>Igala Wikimedia Community</span>
                         <a
-                          href={event.id ? `/events/${event.id}` : "/events"}
+                          href={event.id ? `/events/${event._id}` : "/events"}
                           className="rounded-lg bg-slate-900 px-4 py-2 text-[11px] font-semibold text-white transition hover:bg-slate-800"
                         >
                           View
