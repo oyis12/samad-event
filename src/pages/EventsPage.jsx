@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Skeleton } from "antd";
 import { useApp } from "../context/AppContext";
+import axios from "axios";
 
 const PLACEHOLDER_IMAGE =
   "https://placehold.co/600x400/f1f5f9/64748b?text=Event";
@@ -14,13 +15,10 @@ function EventsPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/event`);
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            setEvents(data);
-          }
-        }
+        const res = await axios.get(`${BASE_URL}/event`);
+        // console.log("Fetch events response:", res);
+        setEvents(res.data?.data);
+        
       } catch (e) {
         console.error("Failed to load events from API", e);
       } finally {
@@ -62,7 +60,7 @@ function EventsPage() {
 
       <main className="py-10 sm:py-16">
         <section className="container-page">
-          <div className="mx-auto max-w-3xl text-center">
+          <div className="mx-auto max-w-3xl text-center mb-10">
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
               Events and Activities
             </h1>
@@ -130,7 +128,7 @@ function EventsPage() {
                       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
                         <span>Igala Wikimedia Community</span>
                         <a
-                          href={event.id ? `/events/${event._id}` : "/events"}
+                          href={`/events/${event._id}`}
                           className="rounded-lg bg-slate-900 px-4 py-2 text-[11px] font-semibold text-white transition hover:bg-slate-800"
                         >
                           View
