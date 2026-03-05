@@ -43,25 +43,45 @@ const DashboardEvent = () => {
   }, []);
 
   const openModal = (event = null) => {
-    if (event) {
-      setEditingEvent(event);
-      setEventForm({
-        name: event.name,
-        description: event.description || "",
-        mainImage: [],
-        galleryImages: [],
-      });
-    } else {
-      setEditingEvent(null);
-      setEventForm({
-        name: "",
-        description: "",
-        mainImage: [],
-        galleryImages: [],
-      });
-    }
-    setIsModalOpen(true);
-  };
+  if (event) {
+    setEditingEvent(event);
+
+    const mainImageFile = event.imageSrc
+      ? [
+          {
+            uid: "-1",
+            name: "main-image",
+            status: "done",
+            url: event.imageSrc,
+          },
+        ]
+      : [];
+
+    const galleryFiles = (event.galleryImages || []).map((img, index) => ({
+      uid: `${index}`,
+      name: `gallery-${index}`,
+      status: "done",
+      url: img,
+    }));
+
+    setEventForm({
+      name: event.name,
+      description: event.description || "",
+      mainImage: mainImageFile,
+      galleryImages: galleryFiles,
+    });
+  } else {
+    setEditingEvent(null);
+    setEventForm({
+      name: "",
+      description: "",
+      mainImage: [],
+      galleryImages: [],
+    });
+  }
+
+  setIsModalOpen(true);
+};
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -84,13 +104,15 @@ const DashboardEvent = () => {
     formData.append("name", eventForm.name);
     formData.append("description", eventForm.description);
 
-    if (eventForm.mainImage.length > 0) {
-      formData.append("image", eventForm.mainImage[0].originFileObj);
-    }
+    if (eventForm.mainImage.length > 0 && eventForm.mainImage[0].originFileObj) {
+  formData.append("image", eventForm.mainImage[0].originFileObj);
+}
 
-    eventForm.galleryImages.forEach((file) =>
-      formData.append("galleryImages", file.originFileObj),
-    );
+   eventForm.galleryImages.forEach((file) => {
+  if (file.originFileObj) {
+    formData.append("galleryImages", file.originFileObj);
+  }
+});
 
     setSubmitLoading(true);
 
