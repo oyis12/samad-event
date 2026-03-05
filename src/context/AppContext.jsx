@@ -6,6 +6,7 @@ const AppContext = createContext();
 // Provider component
 export const AppProvider = ({ children }) => {
   const BASE_URL = "https://igalawikiserver.onrender.com/api";
+  // const BASE_URL = "http://localhost:5000/api";
 
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
