@@ -10,6 +10,19 @@ const DashboardEvent = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [viewEvent, setViewEvent] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+
+  const openViewModal = (event) => {
+    setViewEvent(event);
+    setViewModalOpen(true);
+  };
+
+  const closeViewModal = () => {
+    setViewModalOpen(false);
+    setViewEvent(null);
+  };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventForm, setEventForm] = useState({
@@ -43,45 +56,45 @@ const DashboardEvent = () => {
   }, []);
 
   const openModal = (event = null) => {
-  if (event) {
-    setEditingEvent(event);
+    if (event) {
+      setEditingEvent(event);
 
-    const mainImageFile = event.imageSrc
-      ? [
-          {
-            uid: "-1",
-            name: "main-image",
-            status: "done",
-            url: event.imageSrc,
-          },
-        ]
-      : [];
+      const mainImageFile = event.imageSrc
+        ? [
+            {
+              uid: "-1",
+              name: "main-image",
+              status: "done",
+              url: event.imageSrc,
+            },
+          ]
+        : [];
 
-    const galleryFiles = (event.galleryImages || []).map((img, index) => ({
-      uid: `${index}`,
-      name: `gallery-${index}`,
-      status: "done",
-      url: img,
-    }));
+      const galleryFiles = (event.galleryImages || []).map((img, index) => ({
+        uid: `${index}`,
+        name: `gallery-${index}`,
+        status: "done",
+        url: img,
+      }));
 
-    setEventForm({
-      name: event.name,
-      description: event.description || "",
-      mainImage: mainImageFile,
-      galleryImages: galleryFiles,
-    });
-  } else {
-    setEditingEvent(null);
-    setEventForm({
-      name: "",
-      description: "",
-      mainImage: [],
-      galleryImages: [],
-    });
-  }
+      setEventForm({
+        name: event.name,
+        description: event.description || "",
+        mainImage: mainImageFile,
+        galleryImages: galleryFiles,
+      });
+    } else {
+      setEditingEvent(null);
+      setEventForm({
+        name: "",
+        description: "",
+        mainImage: [],
+        galleryImages: [],
+      });
+    }
 
-  setIsModalOpen(true);
-};
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -104,15 +117,18 @@ const DashboardEvent = () => {
     formData.append("name", eventForm.name);
     formData.append("description", eventForm.description);
 
-    if (eventForm.mainImage.length > 0 && eventForm.mainImage[0].originFileObj) {
-  formData.append("image", eventForm.mainImage[0].originFileObj);
-}
+    if (
+      eventForm.mainImage.length > 0 &&
+      eventForm.mainImage[0].originFileObj
+    ) {
+      formData.append("image", eventForm.mainImage[0].originFileObj);
+    }
 
-   eventForm.galleryImages.forEach((file) => {
-  if (file.originFileObj) {
-    formData.append("galleryImages", file.originFileObj);
-  }
-});
+    eventForm.galleryImages.forEach((file) => {
+      if (file.originFileObj) {
+        formData.append("galleryImages", file.originFileObj);
+      }
+    });
 
     setSubmitLoading(true);
 
@@ -219,6 +235,10 @@ const DashboardEvent = () => {
                 </p>
 
                 <div className="mt-4 flex gap-2">
+                  <Button size="small" onClick={() => openViewModal(event)}>
+                    View
+                  </Button>
+
                   <Button
                     size="small"
                     onClick={() => openModal(event)}
@@ -226,6 +246,7 @@ const DashboardEvent = () => {
                   >
                     Edit
                   </Button>
+
                   <Button
                     size="small"
                     danger
@@ -241,6 +262,7 @@ const DashboardEvent = () => {
         )}
       </div>
 
+      {/* Add/Edit Modal */}
       <Modal
         title={editingEvent ? "Edit Event" : "Add Event"}
         open={isModalOpen}
@@ -378,6 +400,54 @@ const DashboardEvent = () => {
             </div> */}
           </div>
         </div>
+      </Modal>
+
+      {/* View Modal */}
+      <Modal
+        title="Event Details"
+        open={viewModalOpen}
+        onCancel={closeViewModal}
+        footer={null}
+        width={700}
+      >
+        {viewEvent && (
+          <div className="space-y-4">
+            {/* Main Image */}
+            {viewEvent.imageSrc && (
+              <img
+                src={viewEvent.imageSrc}
+                alt={viewEvent.name}
+                className="w-full h-64 object-cover rounded-lg"
+              />
+            )}
+
+            {/* Title */}
+            <h2 className="text-xl font-bold">{viewEvent.name}</h2>
+
+            {/* Description */}
+            <p className="text-gray-600">
+              {viewEvent.description || "No description"}
+            </p>
+
+            {/* Gallery */}
+            {viewEvent.galleryImages && viewEvent.galleryImages.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2">Gallery</h3>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {viewEvent.galleryImages.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt="gallery"
+                      className="w-full h-24 object-cover rounded-md"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );
