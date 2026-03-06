@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import {
-  DesktopOutlined,
   PieChartOutlined,
+  SettingOutlined,
+  BarChartOutlined,
+  FolderOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, theme } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
@@ -17,21 +20,31 @@ const DashboardLayout = () => {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const items = [
+  const menuItems = [
     {
       key: "/admin",
       icon: <PieChartOutlined />,
-      label: "Dashboard",
+      label: "Overview",
     },
     {
       key: "/admin/event",
-      icon: <DesktopOutlined />,
-      label: "Event",
+      icon: <CalendarOutlined />,
+      label: "Events",
     },
     {
       key: "/admin/project",
-      icon: <DesktopOutlined />,
-      label: "Project",
+      icon: <FolderOutlined />,
+      label: "Projects",
+    },
+    {
+      key: "/admin/stats",
+      icon: <BarChartOutlined />,
+      label: "Stats",
+    },
+    {
+      key: "/admin/settings",
+      icon: <SettingOutlined />,
+      label: "Settings",
     },
   ];
 
@@ -48,7 +61,7 @@ const DashboardLayout = () => {
           theme="dark"
           mode="inline"
           selectedKeys={[location.pathname]}
-          items={items}
+          items={menuItems}
           onClick={({ key }) => navigate(key)}
         />
       </Sider>

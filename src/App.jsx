@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage.jsx";
-import DashboardLayout from "./dashboard/DashboadLayout.jsx";
+import DashboardLayout from "./dashboard/DashboardLayout.jsx";
 import LoginPage from "./dashboard/LoginPage.jsx";
 import EventsPage from "./pages/EventsPage.jsx";
 import EventDetailPage from "./pages/EventDetailPage.jsx";
@@ -13,6 +13,8 @@ import Cta from "./pages/Cta.jsx";
 import Dashboard from "./dashboard/Dashboard.jsx";
 import DashboardEvent from "./dashboard/DashboardEvent.jsx";
 import DashboardProject from "./dashboard/DashboardProject.jsx";
+import DashboardStats from "./dashboard/DashboardStats.jsx";
+import DashboardSettings from "./dashboard/DashboardSettings.jsx";
 
 function App() {
   const SESSION_TIMEOUT_MINUTES = 30;
@@ -90,6 +92,8 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="event" element={<DashboardEvent />} />
           <Route path="project" element={<DashboardProject />} />
+          <Route path="stats" element={<DashboardStats />} />
+          <Route path="settings" element={<DashboardSettings />} />
         </Route>
 
       </Routes>

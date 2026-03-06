@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 // Create the context
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Provider component
 export const AppProvider = ({ children }) => {

@@ -63,7 +63,7 @@ const Footer = () => {
               <h3 className="text-sm font-extrabold tracking-tight text-slate-900 mb-4">Wikimedia Projects</h3>
               <ul className="space-y-3">
                 {[
-                  { name: 'Igala Wikipedia', href: 'https://ig.wikipedia.org' },
+                  { name: 'Igala Wikipedia', href: 'https://igl.wikipedia.org/wiki/Ogb%C3%A1_ogbolo' },
                   { name: 'Wikimedia Commons', href: 'https://commons.wikimedia.org' },
                   { name: 'Wikidata', href: 'https://wikidata.org' },
                   { name: 'Wiktionary', href: 'https://wiktionary.org' },
