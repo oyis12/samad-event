@@ -107,6 +107,7 @@ function HomePage() {
                 label="Active Contributors"
                 value={stats.contributors}
                 loading={loading}
+                href="https://igl.wikipedia.org/wiki/Egw%C3%A9y%C3%AD:ActiveUsers"
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -123,10 +124,11 @@ function HomePage() {
                   </svg>
                 }
               />
-              <Stat
+<Stat
                 label="Wikipedia Articles"
                 value={stats.articles}
                 loading={loading}
+                href="https://igl.wikipedia.org/wiki/Egw%C3%A9y%C3%AD:AllPages"
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -147,6 +149,7 @@ function HomePage() {
                 label="Media Files"
                 value={stats.mediaFiles}
                 loading={loading}
+                href="https://commons.wikimedia.org/wiki/Category:Igala_Wikimedia_Community"
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -167,6 +170,7 @@ function HomePage() {
                 label="Community Events"
                 value={stats.events}
                 loading={loading}
+                href="https://commons.wikimedia.org/wiki/Category:Igala_Wikimedia_Community"
                 icon={
                   <svg
                     className="h-6 w-6 text-white/60"
@@ -191,7 +195,7 @@ function HomePage() {
   );
 }
 
-function Stat({ label, value, icon, loading }) {
+function Stat({ label, value, icon, loading, href }) {
   return (
     <div className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/10">
       <div className="flex items-start gap-4">
@@ -215,9 +219,20 @@ function Stat({ label, value, icon, loading }) {
               <div className="text-2xl font-extrabold tracking-tight text-white">
                 {value}
               </div>
-              <div className="mt-1.5 text-xs font-semibold text-white/70 leading-relaxed">
-                {label}
-              </div>
+              {href ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1.5 block text-xs font-semibold text-white/70 leading-relaxed transition-colors hover:text-indigo-300"
+                >
+                  {label}
+                </a>
+              ) : (
+                <div className="mt-1.5 text-xs font-semibold text-white/70 leading-relaxed">
+                  {label}
+                </div>
+              )}
             </>
           )}
         </div>
