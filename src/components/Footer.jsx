@@ -133,7 +133,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="font-semibold text-slate-700 hover:text-slate-900"
                 >
-                  Recognized User Group
+                  {/* Recognized User Group */}
                 </a>
               </div>
             </div>
